@@ -975,6 +975,7 @@ function draw() {
   ctx.clearRect(0, 0, rect.width, rect.height);
   drawBackdrop(rect);
   drawGrid();
+  drawBoardFrame();
   drawPath();
   drawCoreGate();
   drawBuildSlots();
@@ -1028,6 +1029,32 @@ function drawGrid() {
   }
 }
 
+function drawBoardFrame() {
+  const width = tileSize * board.cols;
+  const height = tileSize * board.rows;
+  const x = boardOffset.x;
+  const y = boardOffset.y;
+  const corner = Math.min(tileSize * 0.72, 44);
+  ctx.save();
+  ctx.strokeStyle = "rgba(126,238,255,0.62)";
+  ctx.lineWidth = 2;
+  ctx.shadowColor = "rgba(36,216,255,0.36)";
+  ctx.shadowBlur = 16;
+  [
+    [x, y, 1, 1],
+    [x + width, y, -1, 1],
+    [x, y + height, 1, -1],
+    [x + width, y + height, -1, -1]
+  ].forEach(([cx, cy, sx, sy]) => {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + sy * corner);
+    ctx.lineTo(cx, cy);
+    ctx.lineTo(cx + sx * corner, cy);
+    ctx.stroke();
+  });
+  ctx.restore();
+}
+
 function drawPath() {
   ctx.save();
   ctx.lineCap = "round";
@@ -1047,7 +1074,105 @@ function drawPath() {
     ctx.strokeStyle = "rgba(232,251,255,0.24)";
     ctx.lineWidth = Math.max(2, tileSize * 0.04);
     ctx.stroke();
+    drawRouteFlow(path, pathIndex);
+    drawRouteArrows(path, pathIndex);
+    drawRouteStart(path, pathIndex);
   });
+  ctx.restore();
+}
+
+function drawRouteFlow(path, pathIndex) {
+  const color = pathIndex % 2 === 0 ? "rgba(92,255,154,0.9)" : "rgba(36,216,255,0.9)";
+  const now = performance.now() / 1000;
+  const distance = routeLength(path);
+  if (distance <= 0) return;
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 14;
+  for (let i = 0; i < 2; i++) {
+    const target = ((now * tileSize * 1.18 + i * distance * 0.5 + pathIndex * tileSize * 0.8) % distance);
+    const point = pointAtRouteDistance(path, target);
+    ctx.globalAlpha = i === 0 ? 0.72 : 0.42;
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, Math.max(3, tileSize * 0.055), 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function routeLength(path) {
+  let total = 0;
+  for (let i = 0; i < path.length - 1; i++) {
+    total += Math.hypot(path[i + 1].x - path[i].x, path[i + 1].y - path[i].y);
+  }
+  return total;
+}
+
+function pointAtRouteDistance(path, targetDistance) {
+  let traveled = 0;
+  for (let i = 0; i < path.length - 1; i++) {
+    const a = path[i];
+    const b = path[i + 1];
+    const segment = Math.hypot(b.x - a.x, b.y - a.y);
+    if (traveled + segment >= targetDistance) {
+      const t = (targetDistance - traveled) / Math.max(1, segment);
+      return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
+    }
+    traveled += segment;
+  }
+  return path[path.length - 1];
+}
+
+function drawRouteArrows(path, pathIndex) {
+  const color = pathIndex % 2 === 0 ? "rgba(92,255,154,0.72)" : "rgba(36,216,255,0.72)";
+  ctx.save();
+  ctx.fillStyle = color;
+  for (let i = 0; i < path.length - 1; i++) {
+    const a = path[i];
+    const b = path[i + 1];
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const length = Math.hypot(dx, dy);
+    if (length < tileSize * 1.2) continue;
+    const steps = Math.max(1, Math.floor(length / (tileSize * 2.1)));
+    for (let step = 1; step <= steps; step++) {
+      const t = step / (steps + 1);
+      const x = a.x + dx * t;
+      const y = a.y + dy * t;
+      const angle = Math.atan2(dy, dx);
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.beginPath();
+      ctx.moveTo(tileSize * 0.14, 0);
+      ctx.lineTo(-tileSize * 0.09, -tileSize * 0.09);
+      ctx.lineTo(-tileSize * 0.04, 0);
+      ctx.lineTo(-tileSize * 0.09, tileSize * 0.09);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+  ctx.restore();
+}
+
+function drawRouteStart(path, pathIndex) {
+  const start = path[0];
+  ctx.save();
+  ctx.translate(start.x, start.y);
+  ctx.fillStyle = pathIndex % 2 === 0 ? "rgba(92,255,154,0.18)" : "rgba(36,216,255,0.18)";
+  ctx.strokeStyle = pathIndex % 2 === 0 ? "rgba(92,255,154,0.72)" : "rgba(36,216,255,0.72)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(0, 0, tileSize * 0.26, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#061013";
+  ctx.font = `800 ${Math.max(10, tileSize * 0.18)}px Rajdhani`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("IN", 0, 0);
   ctx.restore();
 }
 
@@ -1089,6 +1214,10 @@ function drawBuildSlots() {
     if (occupied) return;
     const selected = state.selectedBuildSlot && state.selectedBuildSlot.gridX === slot.gridX && state.selectedBuildSlot.gridY === slot.gridY;
     const pulse = 0.5 + Math.sin(performance.now() / 260) * 0.12;
+    ctx.fillStyle = "rgba(0,0,0,0.38)";
+    ctx.beginPath();
+    ctx.ellipse(slot.x, slot.y + tileSize * 0.16, tileSize * 0.32, tileSize * 0.12, 0, 0, Math.PI * 2);
+    ctx.fill();
     ctx.fillStyle = selected ? "rgba(92,255,154,0.26)" : `rgba(36,216,255,${0.14 + pulse * 0.09})`;
     ctx.strokeStyle = selected ? "rgba(92,255,154,0.9)" : "rgba(126,238,255,0.72)";
     ctx.lineWidth = selected ? 3 : 2;
@@ -1099,6 +1228,15 @@ function drawBuildSlots() {
     ctx.fill();
     ctx.stroke();
     ctx.shadowBlur = 0;
+    ctx.strokeStyle = "rgba(232,251,255,0.22)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(slot.x, slot.y, tileSize * 0.36, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.strokeStyle = selected ? "rgba(255,209,102,0.62)" : "rgba(92,255,154,0.24)";
+    ctx.beginPath();
+    ctx.arc(slot.x, slot.y, tileSize * 0.43, -Math.PI * 0.12, Math.PI * 0.78);
+    ctx.stroke();
     ctx.fillStyle = "rgba(0,0,0,0.38)";
     ctx.beginPath();
     ctx.arc(slot.x, slot.y, tileSize * 0.14, 0, Math.PI * 2);
@@ -1148,13 +1286,11 @@ function drawTowers() {
     ctx.beginPath();
     ctx.ellipse(0, 13, 20, 7, 0, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = stats.color;
     ctx.shadowColor = stats.color;
     ctx.shadowBlur = 18 + upgradeGlow * 30;
-    ctx.beginPath();
-    ctx.arc(0, 0, 17 + upgradeGlow * 6, 0, Math.PI * 2);
-    ctx.fill();
+    drawTowerBody(tower, stats, upgradeGlow);
     ctx.shadowBlur = 0;
+    drawTowerLevelPips(tower, stats);
     ctx.fillStyle = "#061013";
     ctx.font = `700 ${Math.max(13, tileSize * 0.23)}px Rajdhani`;
     ctx.textAlign = "center";
@@ -1171,12 +1307,100 @@ function drawTowers() {
   });
 }
 
+function drawTowerLevelPips(tower, stats) {
+  const radius = 23;
+  for (let i = 0; i < MAX_TOWER_LEVEL; i++) {
+    const angle = -Math.PI * 0.86 + i * (Math.PI * 0.24);
+    const active = i < tower.level;
+    ctx.fillStyle = active ? stats.color : "rgba(232,251,255,0.22)";
+    ctx.shadowColor = active ? stats.color : "transparent";
+    ctx.shadowBlur = active ? 8 : 0;
+    ctx.beginPath();
+    ctx.arc(Math.cos(angle) * radius, Math.sin(angle) * radius, 2.8, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.shadowBlur = 0;
+}
+
+function drawTowerBody(tower, stats, upgradeGlow) {
+  const r = 17 + upgradeGlow * 6;
+  ctx.save();
+  ctx.rotate((performance.now() / 1800) % (Math.PI * 2));
+  ctx.strokeStyle = "rgba(232,251,255,0.22)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(0, 0, r + 5, 0, Math.PI * 1.35);
+  ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = stats.color;
+  ctx.strokeStyle = "rgba(232,251,255,0.72)";
+  ctx.lineWidth = 1.5;
+  if (tower.type === "pulse") {
+    drawPolygon(0, 0, r, 6, -Math.PI / 6);
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(6,16,19,0.65)";
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 0.48, 0, Math.PI * 2);
+    ctx.stroke();
+  } else if (tower.type === "laser") {
+    ctx.save();
+    ctx.rotate(Math.PI / 4);
+    ctx.fillRect(-r * 0.72, -r * 0.72, r * 1.44, r * 1.44);
+    ctx.strokeRect(-r * 0.72, -r * 0.72, r * 1.44, r * 1.44);
+    ctx.restore();
+    ctx.fillStyle = "rgba(255,255,255,0.42)";
+    ctx.fillRect(-r * 0.15, -r * 0.95, r * 0.3, r * 0.72);
+  } else if (tower.type === "frost") {
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(6,16,19,0.72)";
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 6; i++) {
+      const angle = (Math.PI * 2 * i) / 6;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(angle) * r * 0.18, Math.sin(angle) * r * 0.18);
+      ctx.lineTo(Math.cos(angle) * r * 0.82, Math.sin(angle) * r * 0.82);
+      ctx.stroke();
+    }
+  } else {
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "rgba(6,16,19,0.75)";
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 0.52, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = stats.color;
+    ctx.fillRect(r * 0.15, -r * 0.22, r * 0.82, r * 0.44);
+  }
+}
+
+function drawPolygon(x, y, radius, sides, rotation = 0) {
+  ctx.beginPath();
+  for (let i = 0; i < sides; i++) {
+    const angle = rotation + (Math.PI * 2 * i) / sides;
+    const px = x + Math.cos(angle) * radius;
+    const py = y + Math.sin(angle) * radius;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+}
+
 function drawEnemies() {
   state.enemies.forEach((enemy) => {
     const template = enemyTypes[enemy.type];
     const slowed = enemy.slowUntil > performance.now() / 1000;
     ctx.save();
     ctx.translate(enemy.x, enemy.y);
+    ctx.fillStyle = "rgba(0,0,0,0.3)";
+    ctx.beginPath();
+    ctx.ellipse(0, enemy.radius * 0.62, enemy.radius * 1.05, enemy.radius * 0.35, 0, 0, Math.PI * 2);
+    ctx.fill();
     ctx.fillStyle = slowed ? "#a98cff" : template.color;
     ctx.shadowColor = ctx.fillStyle;
     ctx.shadowBlur = 14;
@@ -1187,6 +1411,7 @@ function drawEnemies() {
     ctx.strokeStyle = enemy.boss ? "#ffd166" : "rgba(232,251,255,0.72)";
     ctx.lineWidth = enemy.boss ? 3 : 1.5;
     ctx.stroke();
+    drawEnemyMarker(enemy);
     if (enemy.armor > 0) {
       ctx.strokeStyle = "rgba(255,209,102,0.85)";
       ctx.lineWidth = 2;
@@ -1214,6 +1439,23 @@ function drawEnemies() {
     }
     ctx.restore();
   });
+}
+
+function drawEnemyMarker(enemy) {
+  const marker = {
+    runner: ">",
+    tank: "T",
+    swarm: "x",
+    shield: "S",
+    regenerator: "+",
+    phantom: "~",
+    boss: "!"
+  }[enemy.type] || "";
+  ctx.fillStyle = enemy.boss ? "#ffd166" : "#061013";
+  ctx.font = `800 ${enemy.boss ? 16 : 11}px Rajdhani`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(marker, 0, 0);
 }
 
 function drawBullets() {
