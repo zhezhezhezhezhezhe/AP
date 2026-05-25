@@ -82,8 +82,8 @@ button:disabled {
 
 .shell {
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 370px);
+  gap: 18px;
   width: min(1500px, calc(100vw - 28px));
   height: calc(100vh - 28px);
   margin: 14px auto;
@@ -98,12 +98,10 @@ button:disabled {
 }
 
 .command-panel {
-  display: grid;
-  grid-template-columns: minmax(190px, 1.1fr) minmax(180px, 0.85fr) minmax(220px, 1fr) minmax(170px, 0.75fr) minmax(250px, 1.15fr) minmax(210px, 0.95fr);
-  align-items: stretch;
-  gap: 10px;
-  max-height: 220px;
-  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
   overflow: auto;
 }
 
@@ -112,13 +110,14 @@ button:disabled {
 }
 
 .shell.intro-active {
-  grid-template-rows: minmax(0, 1fr);
+  grid-template-columns: 1fr;
 }
 
 .brand-block {
-  border-bottom: 0;
-  border-right: 1px solid var(--line);
-  padding-right: 12px;
+  border-right: 0;
+  border-bottom: 1px solid var(--line);
+  padding-right: 0;
+  padding-bottom: 14px;
 }
 
 .eyebrow {
@@ -188,7 +187,7 @@ h1 {
 
 .launch-row {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1.2fr 0.8fr 0.7fr;
   gap: 8px;
 }
 
@@ -297,6 +296,7 @@ h1 {
 .game-panel {
   position: relative;
   display: grid;
+  height: 100%;
   min-height: 0;
   overflow: hidden;
 }
