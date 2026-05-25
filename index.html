@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyber Defense Grid</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%2306080b'/%3E%3Cpath d='M12 32h40M32 12v40' stroke='%2324d8ff' stroke-width='6'/%3E%3Ccircle cx='32' cy='32' r='10' fill='%235cff9a'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="game-panel">
+      <canvas id="gameCanvas" width="960" height="640" aria-label="Cyber Defense Grid game board"></canvas>
+      <div class="build-menu hidden" id="buildMenu" aria-label="Build tower menu"></div>
+      <div class="how-to-screen" id="howToScreen">
+        <div class="how-to-card">
+          <p class="eyebrow">How To Play</p>
+          <h2>Defend The Core</h2>
+          <div class="how-to-grid">
+            <div>
+              <strong>1. Build</strong>
+              <span>Click glowing build nodes beside the road, then choose a tower from the circular menu.</span>
+            </div>
+            <div>
+              <strong>2. Upgrade</strong>
+              <span>Click a tower to inspect it, upgrade it, or sell it for coins.</span>
+            </div>
+            <div>
+              <strong>3. Survive</strong>
+              <span>Press Start Wave. Enemies follow multiple roads and merge at the CORE.</span>
+            </div>
+            <div>
+              <strong>4. Adapt</strong>
+              <span>Use Frost for control, Blast for groups, Laser for armor, and Pulse for steady damage.</span>
+            </div>
+          </div>
+          <div class="tower-guide">
+            <h3>Tower Guide</h3>
+            <div class="tower-guide-grid">
+              <div><b>Pulse</b><span>Cheap and reliable. Good early defense for single targets.</span></div>
+              <div><b>Laser</b><span>High damage and partial armor piercing. Best against Shield and Boss enemies.</span></div>
+              <div><b>Frost</b><span>Slows enemies so other towers get more shots. Strong near shared route coverage.</span></div>
+              <div><b>Blast</b><span>Area damage. Best against Swarm groups and crowded lanes.</span></div>
+            </div>
+          </div>
+          <div class="enemy-note">
+            <span>Watch for Shield, Regen, Phantom, and Boss enemies. If Core Health reaches zero, the run ends.</span>
+          </div>
+          <button class="primary" id="continueToMenuButton" type="button">Choose Mission</button>
+        </div>
+      </div>
+      <div class="start-screen" id="startScreen">
+        <div class="start-card">
+          <p class="eyebrow">Mission Select</p>
+          <h2>Cyber Defense Grid</h2>
+          <p>Choose a campaign difficulty or jump into endless defense.</p>
+          <div class="mode-grid">
+            <button class="primary" type="button" data-start-mode="campaign" data-difficulty="easy">
+              <strong>Easy Campaign</strong>
+              <span>More coins, more core health, slower enemies.</span>
+            </button>
+            <button type="button" data-start-mode="campaign" data-difficulty="normal">
+              <strong>Normal Campaign</strong>
+              <span>Balanced waves across all three maps.</span>
+            </button>
+            <button type="button" data-start-mode="campaign" data-difficulty="hard">
+              <strong>Hard Campaign</strong>
+              <span>Less money, faster enemies, tougher bosses.</span>
+            </button>
+            <button type="button" data-start-mode="endless" data-difficulty="easy">
+              <strong>Easy Endless</strong>
+              <span>Practice long survival with forgiving resources.</span>
+            </button>
+            <button type="button" data-start-mode="endless" data-difficulty="normal">
+              <strong>Normal Endless</strong>
+              <span>Escalating multi-lane waves.</span>
+            </button>
+            <button type="button" data-start-mode="endless" data-difficulty="hard">
+              <strong>Hard Endless</strong>
+              <span>Fast scaling pressure and tougher bosses.</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="overlay hidden" id="overlay" role="dialog" aria-live="assertive">
+        <div class="overlay-card">
+          <p class="eyebrow" id="overlayKicker">System Notice</p>
+          <h2 id="overlayTitle">Ready</h2>
+          <p id="overlayText">Press Start Wave to begin.</p>
+          <div class="overlay-actions">
+            <button class="primary" id="overlayPrimary" type="button">Continue</button>
+            <button id="overlaySecondary" type="button">Restart</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="command-panel" aria-label="Cyber Defense Grid">
+      <div class="brand-block">
+        <p class="eyebrow">APCSA Final Project</p>
+        <h1>Cyber Defense Grid</h1>
+        <p class="brief">Click a build node on the map, choose a tower, then defend the core.</p>
+      </div>
+
+      <div class="launch-row">
+        <button class="primary" id="startWaveButton" type="button">Start Wave</button>
+        <button id="restartButton" type="button">Restart</button>
+        <button id="menuButton" type="button">Menu</button>
+      </div>
+
+      <div class="core-meter" aria-label="Core health">
+        <div class="core-meter-top">
+          <span>Core Health</span>
+          <strong id="corePercentLabel">100%</strong>
+        </div>
+        <div class="core-bar">
+          <span id="coreBarFill"></span>
+        </div>
+      </div>
+
+      <div class="status-grid" aria-live="polite">
+        <div class="stat">
+          <span>Level</span>
+          <strong id="levelLabel">1 / 3</strong>
+        </div>
+        <div class="stat">
+          <span>Wave</span>
+          <strong id="waveLabel">0 / 5</strong>
+        </div>
+        <div class="stat">
+          <span>Coins</span>
+          <strong id="energyLabel">150</strong>
+        </div>
+        <div class="stat">
+          <span>Core</span>
+          <strong id="coreLabel">20</strong>
+        </div>
+        <div class="stat wide">
+          <span>Mode</span>
+          <strong id="modeLabel">Campaign</strong>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="upgradeButton" type="button" disabled>Upgrade</button>
+        <button id="sellButton" type="button" disabled>Sell</button>
+      </div>
+
+      <div class="tower-details" id="towerDetails">
+        <h2>Tower Details</h2>
+        <div id="towerDetailsContent">Select a built tower to view upgrades.</div>
+      </div>
+
+      <div class="intel">
+        <h2>Selected Node</h2>
+        <p id="selectedInfo">Click a glowing build node to open tower choices.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

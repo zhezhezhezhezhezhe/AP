@@ -1,0 +1,622 @@
+:root {
+  --bg: #06080b;
+  --panel: rgba(12, 18, 22, 0.84);
+  --panel-strong: rgba(17, 28, 34, 0.96);
+  --line: rgba(126, 238, 255, 0.24);
+  --line-strong: rgba(126, 238, 255, 0.52);
+  --text: #e8fbff;
+  --muted: #8fb0b7;
+  --cyan: #24d8ff;
+  --green: #5cff9a;
+  --yellow: #ffd166;
+  --red: #ff4f68;
+  --violet: #a98cff;
+  --tile: #101a1d;
+  --path: #223327;
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.42);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  color: var(--text);
+  font-family: "Chakra Petch", "Segoe UI", sans-serif;
+  background:
+    linear-gradient(90deg, rgba(36, 216, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(36, 216, 255, 0.045) 1px, transparent 1px),
+    radial-gradient(circle at 14% 18%, rgba(92, 255, 154, 0.13), transparent 28%),
+    radial-gradient(circle at 86% 12%, rgba(255, 209, 102, 0.10), transparent 24%),
+    linear-gradient(140deg, #050608, #081116 50%, #090a0d);
+  background-size: 42px 42px, 42px 42px, auto, auto, auto;
+}
+
+button {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--text);
+  background: rgba(11, 22, 26, 0.9);
+  font: 700 0.95rem "Rajdhani", sans-serif;
+  letter-spacing: 0;
+  min-height: 42px;
+  padding: 0 14px;
+  cursor: pointer;
+  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease, opacity 140ms ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: var(--cyan);
+  background: rgba(23, 46, 52, 0.95);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.primary {
+  border-color: rgba(92, 255, 154, 0.65);
+  background: linear-gradient(135deg, rgba(19, 136, 94, 0.95), rgba(24, 83, 90, 0.95));
+  box-shadow: 0 0 24px rgba(92, 255, 154, 0.18);
+}
+
+.shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 370px);
+  gap: 18px;
+  width: min(1500px, calc(100vw - 28px));
+  height: calc(100vh - 28px);
+  margin: 14px auto;
+}
+
+.command-panel,
+.game-panel {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+}
+
+.command-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  overflow: auto;
+}
+
+.shell.intro-active .command-panel {
+  display: none;
+}
+
+.shell.intro-active {
+  grid-template-columns: 1fr;
+}
+
+.brand-block {
+  border-right: 0;
+  border-bottom: 1px solid var(--line);
+  padding-right: 0;
+  padding-bottom: 14px;
+}
+
+.eyebrow {
+  margin: 0 0 7px;
+  color: var(--green);
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 8px;
+  font-family: "Rajdhani", sans-serif;
+  font-size: clamp(1.65rem, 2.4vw, 2.35rem);
+  line-height: 0.94;
+  letter-spacing: 0;
+}
+
+.brief,
+.intel p {
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.stat {
+  min-height: 58px;
+  border: 1px solid rgba(126, 238, 255, 0.18);
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: rgba(3, 10, 13, 0.46);
+}
+
+.stat.wide {
+  grid-column: 1 / -1;
+}
+
+.stat span,
+.core-meter-top span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.stat strong {
+  display: block;
+  margin-top: 6px;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1.35rem;
+}
+
+.launch-row {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr 0.7fr;
+  gap: 8px;
+}
+
+.core-meter {
+  border: 1px solid rgba(126, 238, 255, 0.18);
+  border-radius: 6px;
+  padding: 12px;
+  background: rgba(3, 10, 13, 0.52);
+}
+
+.core-meter-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.core-meter-top strong {
+  color: var(--green);
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1.18rem;
+}
+
+.core-bar {
+  height: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(232, 251, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.core-bar span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--green), var(--cyan));
+  box-shadow: 0 0 18px rgba(92, 255, 154, 0.28);
+  transition: width 180ms ease, background 180ms ease;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.intel {
+  border: 1px solid rgba(126, 238, 255, 0.18);
+  border-radius: 6px;
+  padding: 13px;
+  background: rgba(4, 12, 15, 0.58);
+}
+
+.tower-details {
+  border: 1px solid rgba(126, 238, 255, 0.18);
+  border-radius: 6px;
+  padding: 13px;
+  background: rgba(4, 12, 15, 0.58);
+}
+
+.intel h2,
+.tower-details h2 {
+  margin-bottom: 8px;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1.2rem;
+}
+
+.tower-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.detail-pill {
+  min-height: 48px;
+  border: 1px solid rgba(126, 238, 255, 0.14);
+  border-radius: 6px;
+  padding: 7px 9px;
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.detail-pill span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.detail-pill strong {
+  display: block;
+  margin-top: 3px;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1rem;
+}
+
+.upgrade-preview {
+  margin-top: 8px;
+  color: var(--green);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.game-panel {
+  position: relative;
+  display: grid;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.game-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(92, 255, 154, 0.04));
+}
+
+canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: block;
+  cursor: pointer;
+}
+
+.build-menu {
+  position: absolute;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: repeat(4, 58px);
+  gap: 9px;
+  transform: translate(-50%, calc(-100% - 20px));
+  padding: 9px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: rgba(7, 16, 20, 0.94);
+  box-shadow: 0 12px 38px rgba(0, 0, 0, 0.45), 0 0 34px rgba(36, 216, 255, 0.15);
+}
+
+.build-menu.hidden {
+  display: none;
+}
+
+.build-menu::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -9px;
+  width: 16px;
+  height: 16px;
+  transform: translateX(-50%) rotate(45deg);
+  border-right: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line-strong);
+  background: rgba(7, 16, 20, 0.94);
+}
+
+.build-choice {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  min-height: 58px;
+  padding: 0;
+  border-radius: 50%;
+  color: #061013;
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+.build-choice span {
+  position: absolute;
+  right: -4px;
+  bottom: -6px;
+  min-width: 28px;
+  padding: 2px 5px;
+  border-radius: 999px;
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.75);
+  font-size: 0.68rem;
+}
+
+.how-to-screen,
+.start-screen {
+  position: fixed;
+  inset: 14px;
+  z-index: 7;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    linear-gradient(135deg, rgba(5, 8, 11, 0.88), rgba(4, 17, 20, 0.72)),
+    radial-gradient(circle at center, rgba(36, 216, 255, 0.13), transparent 48%);
+}
+
+.how-to-screen {
+  z-index: 20;
+}
+
+.start-screen {
+  z-index: 19;
+}
+
+.how-to-screen.hidden,
+.start-screen.hidden {
+  display: none;
+}
+
+.how-to-card,
+.start-card {
+  width: min(620px, 100%);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  padding: 26px;
+  background: rgba(8, 18, 22, 0.95);
+  box-shadow: 0 0 80px rgba(36, 216, 255, 0.16), var(--shadow);
+}
+
+.how-to-card {
+  width: min(720px, 100%);
+}
+
+.how-to-card h2,
+.start-card h2 {
+  margin-bottom: 8px;
+  font-family: "Rajdhani", sans-serif;
+  font-size: clamp(2.3rem, 6vw, 4.4rem);
+  line-height: 0.9;
+}
+
+.how-to-card p:not(.eyebrow),
+.start-card p:not(.eyebrow) {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.how-to-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0 12px;
+}
+
+.how-to-grid div,
+.tower-guide,
+.tower-guide-grid div,
+.enemy-note {
+  border: 1px solid rgba(126, 238, 255, 0.18);
+  border-radius: 6px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.how-to-grid strong,
+.how-to-grid span,
+.tower-guide b,
+.tower-guide span,
+.enemy-note span {
+  display: block;
+}
+
+.how-to-grid strong {
+  color: var(--green);
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1.08rem;
+}
+
+.how-to-grid span,
+.enemy-note span {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+.enemy-note {
+  margin-bottom: 14px;
+  border-color: rgba(255, 209, 102, 0.28);
+}
+
+.tower-guide {
+  margin-bottom: 12px;
+}
+
+.tower-guide h3 {
+  margin: 0 0 10px;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1.15rem;
+}
+
+.tower-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.tower-guide-grid div {
+  padding: 10px;
+}
+
+.tower-guide b {
+  color: var(--yellow);
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1.02rem;
+}
+
+.tower-guide span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.32;
+}
+
+.mode-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.mode-grid button {
+  min-height: 92px;
+  padding: 12px;
+  text-align: left;
+}
+
+.mode-grid strong,
+.mode-grid span {
+  display: block;
+}
+
+.mode-grid strong {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1.16rem;
+}
+
+.mode-grid span {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.3;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.54);
+}
+
+.overlay.hidden {
+  display: none;
+}
+
+.overlay-card {
+  width: min(430px, 100%);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  padding: 24px;
+  background: var(--panel-strong);
+  box-shadow: 0 0 70px rgba(36, 216, 255, 0.16);
+}
+
+.overlay-card h2 {
+  margin-bottom: 10px;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 2rem;
+}
+
+.overlay-card p:not(.eyebrow) {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.overlay-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+@media (max-width: 900px) {
+  body {
+    overflow: auto;
+  }
+
+  .shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    height: auto;
+    min-height: calc(100vh - 16px);
+  }
+
+  canvas {
+    height: 62vh;
+  }
+
+  .command-panel {
+    order: 2;
+    display: flex;
+    flex-direction: column;
+    max-height: none;
+  }
+
+  .game-panel {
+    order: 1;
+  }
+}
+
+@media (max-width: 560px) {
+  .shell {
+    width: min(100vw - 16px, 1360px);
+    margin: 8px auto;
+  }
+
+  .command-panel {
+    padding: 14px;
+  }
+
+  .brand-block {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    padding-right: 0;
+    padding-bottom: 14px;
+  }
+
+  .status-grid,
+  .launch-row,
+  .actions,
+  .mode-grid,
+  .how-to-grid,
+  .tower-guide-grid {
+    grid-template-columns: 1fr;
+  }
+}
