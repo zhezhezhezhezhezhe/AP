@@ -987,9 +987,15 @@ function draw() {
 }
 
 function drawBackdrop(rect) {
-  ctx.fillStyle = "#071014";
+  ctx.fillStyle = "#061014";
   ctx.fillRect(0, 0, rect.width, rect.height);
-  ctx.strokeStyle = "rgba(36,216,255,0.06)";
+  const gradient = ctx.createRadialGradient(rect.width * 0.58, rect.height * 0.42, 0, rect.width * 0.58, rect.height * 0.42, Math.max(rect.width, rect.height) * 0.7);
+  gradient.addColorStop(0, "rgba(36,216,255,0.08)");
+  gradient.addColorStop(0.45, "rgba(92,255,154,0.025)");
+  gradient.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, rect.width, rect.height);
+  ctx.strokeStyle = "rgba(36,216,255,0.055)";
   ctx.lineWidth = 1;
   for (let x = 0; x < rect.width; x += 28) {
     ctx.beginPath();
@@ -1009,11 +1015,15 @@ function drawGrid() {
   for (let y = 0; y < board.rows; y++) {
     for (let x = 0; x < board.cols; x++) {
       const isPath = board.pathTiles.has(`${x},${y}`);
-      ctx.fillStyle = isPath ? "rgba(34,51,39,0.92)" : "rgba(16,26,29,0.9)";
+      ctx.fillStyle = isPath ? "rgba(33,55,45,0.94)" : "rgba(13,24,28,0.86)";
       ctx.strokeStyle = isPath ? "rgba(92,255,154,0.22)" : "rgba(126,238,255,0.16)";
       ctx.lineWidth = 1;
       ctx.fillRect(boardOffset.x + x * tileSize + 1, boardOffset.y + y * tileSize + 1, tileSize - 2, tileSize - 2);
       ctx.strokeRect(boardOffset.x + x * tileSize + 0.5, boardOffset.y + y * tileSize + 0.5, tileSize - 1, tileSize - 1);
+      if (!isPath) {
+        ctx.fillStyle = "rgba(255,255,255,0.018)";
+        ctx.fillRect(boardOffset.x + x * tileSize + tileSize * 0.18, boardOffset.y + y * tileSize + tileSize * 0.18, tileSize * 0.12, tileSize * 0.12);
+      }
     }
   }
 }
@@ -1023,16 +1033,19 @@ function drawPath() {
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   board.pathPixels.forEach((path, pathIndex) => {
-    ctx.strokeStyle = pathIndex % 2 === 0 ? "rgba(92,255,154,0.34)" : "rgba(36,216,255,0.26)";
-    ctx.lineWidth = Math.max(10, tileSize * 0.23);
+    ctx.strokeStyle = "rgba(0,0,0,0.38)";
+    ctx.lineWidth = Math.max(18, tileSize * 0.36);
     ctx.beginPath();
     path.forEach((point, index) => {
       if (index === 0) ctx.moveTo(point.x, point.y);
       else ctx.lineTo(point.x, point.y);
     });
     ctx.stroke();
-    ctx.strokeStyle = "rgba(232,251,255,0.16)";
-    ctx.lineWidth = Math.max(2, tileSize * 0.045);
+    ctx.strokeStyle = pathIndex % 2 === 0 ? "rgba(92,255,154,0.42)" : "rgba(36,216,255,0.34)";
+    ctx.lineWidth = Math.max(10, tileSize * 0.23);
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(232,251,255,0.24)";
+    ctx.lineWidth = Math.max(2, tileSize * 0.04);
     ctx.stroke();
   });
   ctx.restore();
@@ -1047,10 +1060,13 @@ function drawCoreGate() {
   ctx.fillStyle = `rgba(255,79,104,${0.18 + pulse * 0.12})`;
   ctx.strokeStyle = "rgba(255,209,102,0.9)";
   ctx.lineWidth = 3;
+  ctx.shadowColor = "rgba(255,79,104,0.9)";
+  ctx.shadowBlur = 22;
   ctx.beginPath();
   ctx.arc(0, 0, tileSize * 0.34, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
+  ctx.shadowBlur = 0;
   ctx.strokeStyle = "rgba(255,79,104,0.88)";
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -1073,13 +1089,20 @@ function drawBuildSlots() {
     if (occupied) return;
     const selected = state.selectedBuildSlot && state.selectedBuildSlot.gridX === slot.gridX && state.selectedBuildSlot.gridY === slot.gridY;
     const pulse = 0.5 + Math.sin(performance.now() / 260) * 0.12;
-    ctx.fillStyle = selected ? "rgba(92,255,154,0.22)" : `rgba(36,216,255,${0.12 + pulse * 0.08})`;
+    ctx.fillStyle = selected ? "rgba(92,255,154,0.26)" : `rgba(36,216,255,${0.14 + pulse * 0.09})`;
     ctx.strokeStyle = selected ? "rgba(92,255,154,0.9)" : "rgba(126,238,255,0.72)";
     ctx.lineWidth = selected ? 3 : 2;
+    ctx.shadowColor = selected ? "rgba(92,255,154,0.85)" : "rgba(36,216,255,0.55)";
+    ctx.shadowBlur = selected ? 18 : 10;
     ctx.beginPath();
     ctx.arc(slot.x, slot.y, tileSize * 0.28, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "rgba(0,0,0,0.38)";
+    ctx.beginPath();
+    ctx.arc(slot.x, slot.y, tileSize * 0.14, 0, Math.PI * 2);
+    ctx.fill();
     ctx.strokeStyle = "rgba(232,251,255,0.4)";
     ctx.beginPath();
     ctx.moveTo(slot.x - tileSize * 0.14, slot.y);
