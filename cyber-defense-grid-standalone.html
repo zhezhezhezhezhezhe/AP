@@ -107,6 +107,14 @@ button:disabled {
   overflow: auto;
 }
 
+.shell.intro-active .command-panel {
+  display: none;
+}
+
+.shell.intro-active {
+  grid-template-rows: minmax(0, 1fr);
+}
+
 .brand-block {
   border-bottom: 0;
   border-right: 1px solid var(--line);
@@ -370,8 +378,8 @@ canvas {
 
 .how-to-screen,
 .start-screen {
-  position: absolute;
-  inset: 0;
+  position: fixed;
+  inset: 14px;
   z-index: 7;
   display: grid;
   place-items: center;
@@ -382,7 +390,11 @@ canvas {
 }
 
 .how-to-screen {
-  z-index: 8;
+  z-index: 20;
+}
+
+.start-screen {
+  z-index: 19;
 }
 
 .how-to-screen.hidden,
@@ -777,6 +789,7 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 const ui = {
+  shell: document.querySelector(".shell"),
   level: document.getElementById("levelLabel"),
   wave: document.getElementById("waveLabel"),
   energy: document.getElementById("energyLabel"),
@@ -1053,6 +1066,7 @@ function init() {
   state.started = true;
   hideOverlay();
   hideStartScreen();
+  ui.shell.classList.remove("intro-active");
   updateUI();
 }
 
@@ -1067,6 +1081,7 @@ function showMainMenu() {
   hideBuildMenu();
   ui.howToScreen.classList.add("hidden");
   ui.startScreen.classList.remove("hidden");
+  ui.shell.classList.add("intro-active");
   updateUI();
 }
 
@@ -1081,6 +1096,7 @@ function showHowTo() {
   hideBuildMenu();
   ui.startScreen.classList.add("hidden");
   ui.howToScreen.classList.remove("hidden");
+  ui.shell.classList.add("intro-active");
   updateUI();
 }
 
