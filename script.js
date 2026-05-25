@@ -1291,20 +1291,62 @@ function drawTowers() {
     drawTowerBody(tower, stats, upgradeGlow);
     ctx.shadowBlur = 0;
     drawTowerLevelPips(tower, stats);
-    ctx.fillStyle = "#061013";
-    ctx.font = `700 ${Math.max(13, tileSize * 0.23)}px Rajdhani`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(towerTypes[tower.type].key, 0, -1);
-    ctx.fillStyle = "#e8fbff";
-    ctx.font = "700 11px Rajdhani";
-    ctx.fillText(`L${tower.level}`, 0, 24);
+    drawTowerLabel(tower, stats);
     if (tower.level === MAX_TOWER_LEVEL) {
       ctx.fillStyle = "#ffd166";
+      ctx.font = "700 10px Rajdhani";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
       ctx.fillText("MAX", 0, 36);
     }
     ctx.restore();
   });
+}
+
+function drawTowerLabel(tower, stats) {
+  const keySize = Math.max(13, tileSize * 0.22);
+  ctx.save();
+  ctx.shadowColor = "rgba(0,0,0,0.72)";
+  ctx.shadowBlur = 8;
+  ctx.fillStyle = "rgba(3,10,13,0.92)";
+  ctx.beginPath();
+  ctx.arc(0, -1, Math.max(9, tileSize * 0.15), 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = "rgba(232,251,255,0.78)";
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.fillStyle = "#f4feff";
+  ctx.font = `900 ${keySize}px Rajdhani`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(towerTypes[tower.type].key, 0, -1);
+
+  ctx.fillStyle = "rgba(3,10,13,0.86)";
+  ctx.strokeStyle = stats.color;
+  ctx.lineWidth = 1;
+  roundRectPath(-14, 17, 28, 13, 4);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#e8fbff";
+  ctx.font = "800 10px Rajdhani";
+  ctx.fillText(`L${tower.level}`, 0, 23.5);
+  ctx.restore();
+}
+
+function roundRectPath(x, y, width, height, radius) {
+  const r = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + width - r, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+  ctx.lineTo(x + width, y + height - r);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+  ctx.lineTo(x + r, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
 }
 
 function drawTowerLevelPips(tower, stats) {
