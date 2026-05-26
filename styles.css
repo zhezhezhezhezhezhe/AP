@@ -531,6 +531,8 @@ canvas {
   display: grid;
   place-items: center;
   padding: 24px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background:
     linear-gradient(135deg, rgba(5, 8, 11, 0.92), rgba(4, 17, 20, 0.8)),
     radial-gradient(circle at 50% 42%, rgba(36, 216, 255, 0.18), transparent 48%),
@@ -553,6 +555,8 @@ canvas {
 .how-to-card,
 .start-card {
   width: min(620px, 100%);
+  max-height: calc(100vh - 76px);
+  overflow-y: auto;
   border: 1px solid var(--line-strong);
   border-radius: 10px;
   padding: 28px;
@@ -576,6 +580,25 @@ canvas {
 
 .how-to-card {
   width: min(720px, 100%);
+}
+
+.how-to-card::-webkit-scrollbar,
+.start-card::-webkit-scrollbar {
+  width: 8px;
+}
+
+.how-to-card::-webkit-scrollbar-thumb,
+.start-card::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(126, 238, 255, 0.28);
+}
+
+#continueToMenuButton {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  width: 100%;
+  margin-top: 8px;
 }
 
 .how-to-card h2,
@@ -847,5 +870,37 @@ canvas {
   .how-to-grid,
   .tower-guide-grid {
     grid-template-columns: 1fr;
+  }
+
+  .how-to-screen,
+  .start-screen {
+    inset: 8px;
+    padding: 12px;
+    place-items: start center;
+  }
+
+  .how-to-card,
+  .start-card {
+    max-height: calc(100vh - 40px);
+    padding: 18px;
+  }
+}
+
+@media (max-height: 760px) {
+  .how-to-screen,
+  .start-screen {
+    place-items: start center;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .how-to-card,
+  .start-card {
+    max-height: calc(100vh - 52px);
+  }
+
+  .how-to-card h2,
+  .start-card h2 {
+    font-size: clamp(2rem, 8vh, 3.2rem);
   }
 }
