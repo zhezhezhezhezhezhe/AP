@@ -678,6 +678,13 @@ canvas {
   border-color: rgba(255, 209, 102, 0.28);
 }
 
+.skip-note {
+  margin: 0 0 10px;
+  color: var(--yellow);
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
 .tower-guide {
   margin-bottom: 12px;
 }

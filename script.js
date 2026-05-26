@@ -1700,6 +1700,12 @@ ui.sell.addEventListener("click", sellSelectedTower);
 ui.restart.addEventListener("click", init);
 ui.menu.addEventListener("click", showMainMenu);
 ui.continueToMenu.addEventListener("click", showMainMenu);
+document.addEventListener("keydown", (event) => {
+  const tutorialVisible = !ui.howToScreen.classList.contains("hidden");
+  if (!tutorialVisible || event.code !== "Space") return;
+  event.preventDefault();
+  showMainMenu();
+});
 document.querySelectorAll("[data-start-mode]").forEach((button) => {
   button.addEventListener("click", () => {
     startRun(button.dataset.startMode, button.dataset.difficulty);
